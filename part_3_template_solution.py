@@ -276,32 +276,52 @@ class Section3:
         Xtest: NDArray[np.floating],
         ytest: NDArray[np.int32],
     ) -> dict[str, Any]:
-        """"""
+        
         # Enter your code and fill the `answer` dictionary
+
+        n_splits = 5
+        clf = SVC(random_state=self.seed, class_weight="balanced")
+        
+        cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=self.seed)
+
+        def cross_validate_metric(score_type: str):
+            score = ["accuracy", "recall", "precision", "f1"]
+            cv_scores = cross_validate(
+                clf, X, y, scoring=score, cv=cv, return_train_score=False
+            )
+
+            scores = {
+                "mean_accuracy": cv_scores["test_accuracy"].mean(),
+                "mean_recall": cv_scores["test_recall"].mean(),
+                "mean_precision": cv_scores["test_precision"].mean(),
+                "mean_f1": cv_scores["test_f1"].mean(),
+                "std_accuracy": cv_scores["test_accuracy"].std(),
+                "std_recall": cv_scores["test_recall"].std(),
+                "std_precision": cv_scores["test_precision"].std(),
+                "std_f1": cv_scores["test_f1"].std(),
+            }
+            return scores
+
+        scores = cross_validate_metric(score_type="macro")
+
+        # Train on all the data
+        clf.fit(X, y)
+
+        ytrain_pred = clf.predict(X)
+        ytest_pred = clf.predict(Xtest)
+        conf_mat_train = confusion_matrix(y, ytrain_pred)
+        conf_mat_test = confusion_matrix(ytest, ytest_pred)
+
         answer = {}
-
-        """
-        Answer is a dictionary with the following keys: 
-        - "scores" : a dictionary with the mean/std of the F1 score, precision, and recall
-        - "cv" : the cross-validation strategy
-        - "clf" : the classifier
-        - "class_weights" : the class weights
-        - "confusion_matrix_train" : the confusion matrix for the training set
-        - "confusion_matrix_test" : the confusion matrix for the testing set
-        - "explain_purpose_of_class_weights" : explanatory string
-        - "explain_performance_difference" : explanatory string
-
-        answer["scores"] has the following keys: 
-        - "mean_accuracy" : the mean accuracy
-        - "mean_recall" : the mean recall
-        - "mean_precision" : the mean precision
-        - "mean_f1" : the mean f1
-        - "std_accuracy" : the std accuracy
-        - "std_recall" : the std recall
-        - "std_precision" : the std precision
-        - "std_f1" : the std f1
-
-        Recall: The scores are based on the results of the cross-validation step
-        """
-
+        answer["scores"] = scores
+        answer["cv"] = cv
+        answer["clf"] = clf
+        answer['class_weights']= compute_class_weight(
+            class_weight="balanced", classes=np.unique(y), y=y
+        )
+        
+        answer["confusion_matrix_train"] = conf_mat_train  
+        answer["confusion_matrix_test"] = conf_mat_test  
+        answer["explain_purpose_of_class_weights"] = "The employment of class weights is geared towards alleviating class imbalance by applying increased penalties to misclassifications of the minority class.."
+        answer["explain_performance_difference"] = "The performance difference noted when employing class weights reflects the model's improved capacity to generalize to the minority class, leading to more balanced performance metrics across all classes."
         return answer
