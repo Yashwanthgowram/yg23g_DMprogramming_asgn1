@@ -161,12 +161,41 @@ class Section3:
         NDArray[np.floating],
         NDArray[np.int32],
     ]:
-        """"""
-        # Enter your code and fill the `answer` dictionary
         answer = {}
+        """
+        seven_nine_idx = (y == 7) | (y == 9)
+        X = X[seven_nine_idx, :]
+        y = y[seven_nine_idx]
+
+        frac_to_remove = 0.9
+        X, y = nu.filter_9s_convert_to_01(X, y, frac=frac_to_remove)
+        Xtest, ytest = nu.filter_9s_convert_to_01(
+            Xtest, ytest, frac=frac_to_remove
+        )
+        """
+        #X,y,Xtest,ytest = u.prepare_data()
+        X,y = nu.filter_imbalanced_7_9s(X, y)
+        Xtest,ytest = nu.filter_imbalanced_7_9s(Xtest, ytest)
+
+        Xtrain_test = nu.scale_data(X)
+        Xtest_test = nu.scale_data(Xtest)
+
+        # Checking that the labels are integers
+        ytrain_test = nu.scale_data_1(y)
+        ytest_test = nu.scale_data_1(ytest)
+
+        print("3(B) - Are elements in Xtrain a floating point number and scaled between 0 to 1:" +str(Xtrain_test))
+        print("3(B) - Are elements in a floating point number and scaled between 0 to 1:" +str(Xtest_test))
+        print("3(B) - Are elements in ytrian an integer:" +str(ytrain_test))
+        print("3(B) - Are elements in ytest an integer:" +str(ytest_test))
 
         # Answer is a dictionary with the same keys as part 1.B
-
+        answer["length_X"] = len(X)
+        answer["length_Xtest"] = len(Xtest)
+        answer["length_y"] = len(y)
+        answer["length_ytest"] = len(ytest)
+        answer["max_X"] = np.max(X)
+        answer["max_Xtest"] = np.max(Xtest)
         return answer, X, y, Xtest, ytest
 
     # --------------------------------------------------------------------------
@@ -186,31 +215,52 @@ class Section3:
         Xtest: NDArray[np.floating],
         ytest: NDArray[np.int32],
     ) -> dict[str, Any]:
-        """"""
-
+    
         # Enter your code and fill the `answer` dictionary
-        answer = {}
+        n_splits = 5
+        clf = SVC(random_state=self.seed)
 
-        """
-        Answer is a dictionary with the following keys: 
-        - "scores" : a dictionary with the mean/std of the F1 score, precision, and recall
-        - "cv" : the cross-validation strategy
-        - "clf" : the classifier
-        - "is_precision_higher_than_recall" : a boolean
-        - "explain_is_precision_higher_than_recall" : a string
-        - "confusion_matrix_train" : the confusion matrix for the training set
-        - "confusion_matrix_test" : the confusion matrix for the testing set
-        
-        answer["scores"] is dictionary with the following keys, generated from the cross-validator:
-        - "mean_accuracy" : the mean accuracy
-        - "mean_recall" : the mean recall
-        - "mean_precision" : the mean precision
-        - "mean_f1" : the mean f1
-        - "std_accuracy" : the std accuracy
-        - "std_recall" : the std recall
-        - "std_precision" : the std precision
-        - "std_f1" : the std f1
-        """
+        cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=self.seed)
+
+        def cross_validate_metric(score_type: str):
+            score = ["accuracy", "recall", "precision", "f1"]
+            cv_scores = cross_validate(
+                clf, X, y, scoring=score, cv=cv, return_train_score=False
+            )
+            #cv_scores = u.train_simple_classifier_with_cv(Xtrain=X, ytrain=y, clf=clf, cv=cv)
+            scores = {
+                "mean_accuracy": cv_scores["test_accuracy"].mean(),
+                "mean_recall": cv_scores["test_recall"].mean(),
+                "mean_precision": cv_scores["test_precision"].mean(),
+                "mean_f1": cv_scores["test_f1"].mean(),
+                "std_accuracy": cv_scores["test_accuracy"].std(),
+                "std_recall": cv_scores["test_recall"].std(),
+                "std_precision": cv_scores["test_precision"].std(),
+                "std_f1": cv_scores["test_f1"].std(),
+            }
+            return scores
+
+        # scores_macro = cross_validate_metric(score_type="macro")
+        scores = cross_validate_metric(score_type="macro")
+
+        # Train on all the data
+        clf.fit(X, y)
+
+        ytrain_pred = clf.predict(X)
+        ytest_pred = clf.predict(Xtest)
+        conf_mat_train = confusion_matrix(y, ytrain_pred)
+        conf_mat_test = confusion_matrix(ytest, ytest_pred)
+
+        answer = {}
+        answer["scores"] = scores
+        answer["cv"] = cv
+        answer["clf"] = clf
+        answer["is_precision_higher_than_recall"] = (
+            scores["mean_precision"] > scores["mean_recall"]
+        )
+        answer["explain_is_precision_higher_than_recall"] = "On average, the model's accuracy is higher in positive predictions, with fewer false positives, than in its ability to capture all positive instances, where a tendency for more false negatives is evident."
+        answer["confusion_matrix_train"] = conf_mat_train  
+        answer["confusion_matrix_test"] = conf_mat_test  
 
         return answer
 
