@@ -119,7 +119,7 @@ class Section3:
         #plt.show()
 
         # explanation
-        answer["text_rate_accuracy_change"] = "The accuracy of the model on testing data consistently improves as k increases, reflecting its heightened proficiency in predicting the top-k classes
+        answer["text_rate_accuracy_change"] = "The accuracy of the model on testing data consistently improves as k increases, reflecting its heightened proficiency in predicting the top-k classes."
         answer["text_is_topk_useful_and_why"] = "Beyond the scope of traditional accuracy, the top-k accuracy metric is valuable for assessing performance, indicating the model's effectiveness in capturing relevant patterns and making accurate predictions across a more diverse set of probable classes."
         """
         # `answer` is a dictionary with the following keys:
@@ -142,6 +142,32 @@ class Section3:
         """
 
         return answer, Xtrain, ytrain, Xtest, ytest
+
+    # --------------------------------------------------------------------------
+    """
+    B. Repeat part 1.B but return an imbalanced dataset consisting of 90% of all 9s removed.  Also convert the 7s to 0s and 9s to 1s.
+    """
+
+    def partB(
+        self,
+        X: NDArray[np.floating],
+        y: NDArray[np.int32],
+        Xtest: NDArray[np.floating],
+        ytest: NDArray[np.int32],
+    ) -> tuple[
+        dict[Any, Any],
+        NDArray[np.floating],
+        NDArray[np.int32],
+        NDArray[np.floating],
+        NDArray[np.int32],
+    ]:
+        """"""
+        # Enter your code and fill the `answer` dictionary
+        answer = {}
+
+        # Answer is a dictionary with the same keys as part 1.B
+
+        return answer, X, y, Xtest, ytest
 
     # --------------------------------------------------------------------------
     """
