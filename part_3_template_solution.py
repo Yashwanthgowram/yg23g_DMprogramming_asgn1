@@ -64,11 +64,63 @@ class Section3:
         NDArray[np.floating],
         NDArray[np.int32],
     ]:
-        """ """
+        
         # Enter code and return the `answer`` dictionary
 
         answer = {}
+        counts_train = np.unique(ytrain, return_counts=True)
+        counts_test = np.unique(ytest, return_counts=True)
+        print("counts_train: ", counts_train)
+        print("counts_test: ", counts_test)
+        print()
 
+        self.is_int = nu.check_labels(ytrain)
+        self.is_int = nu.check_labels(ytrain)
+        self.dist_dict = self.analyze_class_distribution(
+            ytrain.astype(np.int32)
+        )  
+        # Train a Logistic regression Classifier
+        clf = LogisticRegression(
+                random_state=self.seed, multi_class="multinomial", max_iter=300
+            )
+        clf.fit(Xtrain, ytrain)
+        
+        # Predict probabilities for training and test sets
+        ytrain_pred = clf.predict_proba(Xtrain)
+        ytest_pred = clf.predict_proba(Xtest)
+
+        # Calculate top-k accuracy scores
+        topk = [k for k in range(1, 6)]
+        plot_scores_test = []
+        plot_scores_train = []
+
+        for k in topk:
+            topk_dict = {}
+            nb_unique, counts = np.unique(ytest, return_counts=True)
+
+            # Calculate top-k accuracy score for both training and test sets
+            score_train = top_k_accuracy_score(ytrain, ytrain_pred, normalize=True, k=k)
+            score_test = top_k_accuracy_score(ytest, ytest_pred, normalize=True, k=k)
+            topk_dict["score_train"] = score_train
+            topk_dict["score_test"] = score_test
+            answer[k] = topk_dict
+            plot_scores_test.append((k, score_test))
+            plot_scores_train.append((k, score_train))
+
+        # Store the trained classifier in the answer dictionary
+        answer["clf"] = clf
+
+        # Store the k vs. score plots in the answer dictionary
+        answer["plot_k_vs_score_train"] = plot_scores_train
+        answer["plot_k_vs_score_test"] = plot_scores_test
+
+        #plt.plot(Xtrain, ytrain)
+        #plt.plot(Xtest, ytest)
+        #plt.show()
+
+        # explanation
+        answer["text_rate_accuracy_change"] = "The accuracy of the model on testing data consistently improves as k increases, reflecting its heightened proficiency in predicting the top-k classes
+        answer["text_is_topk_useful_and_why"] = "Beyond the scope of traditional accuracy, the top-k accuracy metric is valuable for assessing performance, indicating the model's effectiveness in capturing relevant patterns and making accurate predictions across a more diverse set of probable classes."
         """
         # `answer` is a dictionary with the following keys:
         - integers for each topk (1,2,3,4,5)
@@ -90,32 +142,6 @@ class Section3:
         """
 
         return answer, Xtrain, ytrain, Xtest, ytest
-
-    # --------------------------------------------------------------------------
-    """
-    B. Repeat part 1.B but return an imbalanced dataset consisting of 90% of all 9s removed.  Also convert the 7s to 0s and 9s to 1s.
-    """
-
-    def partB(
-        self,
-        X: NDArray[np.floating],
-        y: NDArray[np.int32],
-        Xtest: NDArray[np.floating],
-        ytest: NDArray[np.int32],
-    ) -> tuple[
-        dict[Any, Any],
-        NDArray[np.floating],
-        NDArray[np.int32],
-        NDArray[np.floating],
-        NDArray[np.int32],
-    ]:
-        """"""
-        # Enter your code and fill the `answer` dictionary
-        answer = {}
-
-        # Answer is a dictionary with the same keys as part 1.B
-
-        return answer, X, y, Xtest, ytest
 
     # --------------------------------------------------------------------------
     """
