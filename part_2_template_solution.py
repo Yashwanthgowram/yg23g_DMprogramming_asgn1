@@ -120,9 +120,9 @@ class Section2:
         # Enter your code and fill the `answer`` dictionary
         answer = {}
         
-        for i in range(0, len(ntrain_list)):
-            train_rows = ntrain_list[i]
-            test_rows = ntest_list[i]
+        for p in range(0, len(ntrain_list)):
+            train_rows = ntrain_list[p]
+            test_rows = ntest_list[p]
     
             Xtrain = X[0:train_rows,:]
             ytrain = y[0:train_rows]
@@ -201,7 +201,7 @@ class Section2:
             }
            
             
-            answer[ntrain_list[i]] = {
+            answer[ntrain_list[p]] = {
                 "partC": answer_sub ,
                 "partD": answer_sub1,
                 "partF": answer_sub2,
