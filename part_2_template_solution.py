@@ -52,7 +52,14 @@ class Section2:
         NDArray[np.int32],
     ]:
         answer = {}
-        # Enter your code and fill the `answer`` dictionary
+        
+        
+        Xtrain, ytrain, Xtest, ytest = u.prepare_data()
+        Xtrain = nu.scale_data(Xtrain)
+        Xtest = nu.scale_data(Xtest)
+        
+        answer = {}
+         # Enter your code and fill the `answer`` dictionary
 
         # `answer` is a dictionary with the following keys:
         # - nb_classes_train: number of classes in the training set
@@ -69,8 +76,18 @@ class Section2:
         # return values:
         # Xtrain, ytrain, Xtest, ytest: the data used to fill the `answer`` dictionary
 
-        Xtrain = Xtest = np.zeros([1, 1], dtype="float")
-        ytrain = ytest = np.zeros([1], dtype="int")
+        #Xtrain = Xtest = np.zeros([1, 1], dtype="float")
+        #ytrain = ytest = np.zeros([1], dtype="int")
+        answer["nb_classes_train"] = len(np.unique(ytrain))
+        answer["nb_classes_test"] = len(np.unique(ytest))
+        answer["class_count_train"] = np.bincount(ytrain)
+        answer["class_count_test"] = np.bincount(ytest)
+        answer["length_Xtrain"] = Xtrain.shape[0]
+        answer["length_Xtest"] = Xtest.shape[0]
+        answer["length_ytrain"] = len(ytrain)
+        answer["length_ytest"] = len(ytest)
+        answer["max_Xtrain"] = np.max(Xtrain)
+        answer["max_Xtest"] = np.max(Xtest)
 
         return answer, Xtrain, ytrain, Xtest, ytest
 
