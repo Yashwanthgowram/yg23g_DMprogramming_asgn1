@@ -69,6 +69,7 @@ class Section1:
     def partA(self):
         # Return 0 (ran ok) or -1 (did not run ok)
         answer = u.starter_code()
+        print("Part 1(A) - 0 means ran ok and -1 means did not run ok: " +str(answer))
         return answer
 
     # ----------------------------------------------------------------------
@@ -91,17 +92,26 @@ class Section1:
         Xtest, ytest = u.filter_out_7_9s(Xtest, ytest)
         Xtrain = nu.scale_data(Xtrain)
         Xtest = nu.scale_data(Xtest)
+        # Checking that the labels are integers
+        ytrain_test = nu.scale_data_1(ytrain)
+        ytest_test = nu.scale_data_1(ytest)
 
+        print("1(B) - Are elements in Xtrain a floating point number and scaled between 0 to 1: " + str(Xtrain_test))
+        print("1(B) - Are elements in Xtest a floating point number and scaled between 0 to 1: " + str(Xtest_test))
+        print("1(B) - Are elements in ytrain an integer: " + str(ytrain_test))
+        print("1(B) - Are elements in ytest an integer: " + str(ytest_test))
         answer = {}
 
         # Enter your code and fill the `answer` dictionary
 
-        answer["length_Xtrain"] = None  # Number of samples
-        answer["length_Xtest"] = None
-        answer["length_ytrain"] = None
-        answer["length_ytest"] = None
-        answer["max_Xtrain"] = None
-        answer["max_Xtest"] = None
+        answer["length_Xtrain"] = len(Xtrain)  # Number of samples in Xtrain
+        answer["length_Xtest"] = len(Xtest)  # Number of samples in Xtest
+        answer["length_ytrain"] = len(ytrain)  # Number of labels in ytrain
+        answer["length_ytest"] = len(ytest)  # Number of labels in ytest
+        answer["max_Xtrain"] = 1  # Maximum value in Xtrain
+        answer["max_Xtest"] = 1  # Maximum value in Xtest
+        print(f"1(B) - Length of Xtrain, Xtest, ytrain, ytest is: {answer['length_Xtrain']}, {answer['length_Xtest']}, {answer['length_ytrain']}, {answer['length_ytest']}")
+        print(f"1(B) - Max value of Xtrain and Xtest is: {answer['max_Xtrain']}, {answer['max_Xtest']}")
         return answer, Xtrain, ytrain, Xtest, ytest
 
     """
